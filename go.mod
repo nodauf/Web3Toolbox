@@ -1,4 +1,4 @@
-module web3Toolbox
+module github.com/nodauf/web3Toolbox
 
 go 1.18
 

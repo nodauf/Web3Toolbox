@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 	"os"
-	ethcmd "web3Toolbox/cmd/eth"
-	utilscmd "web3Toolbox/cmd/utils"
+	ethcmd "github.com/nodauf/web3Toolbox/cmd/eth"
+	utilscmd "github.com/nodauf/web3Toolbox/cmd/utils"
 
 	"github.com/spf13/cobra"
 
