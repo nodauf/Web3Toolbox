@@ -1,3 +1,5 @@
+package ethcmd
+
 /*
 Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 
@@ -13,15 +15,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package ethcmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
-// ethCmd represents the eth command
+var blockchainURL string
+var privateKey string
+
+// EthCmd represents the eth command
 var EthCmd = &cobra.Command{
 	Use:   "eth",
 	Short: "A brief description of your command",
@@ -31,9 +33,6 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("eth called")
-	},
 }
 
 func init() {

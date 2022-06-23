@@ -2,11 +2,10 @@ package utilscmd
 
 import (
 	"fmt"
+	"github.com/nodauf/web3Toolbox/utilsCmd/weiConverter"
 	"math/big"
-	"strings"
 	"unicode"
 
-	"github.com/ethereum/go-ethereum/params"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"github.com/spf13/cobra"
@@ -25,12 +24,12 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		gwei, err := ParseBigFloat(gweiStr)
+		gwei, err := weiConverter.ParseBigFloat(gweiStr)
 		if err != nil {
 			fmt.Println("Fail to parse gwei:", err)
 			return
 		}
-		ether, err := ParseBigFloat(etherStr)
+		ether, err := weiConverter.ParseBigFloat(etherStr)
 		if err != nil {
 			fmt.Println("Fail to parse ether:", err)
 			return
@@ -45,19 +44,19 @@ to quickly create a Cobra application.`,
 		// If no argument spawn the gui
 		if wei.Cmp(big.NewInt(0)) == 1 || gwei.Cmp(big.NewFloat(0)) == 1 || ether.Cmp(big.NewFloat(0)) == 1 {
 			if wei.Cmp(big.NewInt(0)) == 1 {
-				etherBigFloat := weiToEther(wei)
+				etherBigFloat := weiConverter.WeiToEther(wei)
 				fmt.Printf("ether\t %s\n", etherBigFloat.Text('f', -1))
-				fmt.Printf("gwei:\t%s\n", weiToGwei(wei).Text('f', -1))
+				fmt.Printf("gwei:\t%s\n", weiConverter.WeiToGwei(wei).Text('f', -1))
 			}
 			if gwei.Cmp(big.NewFloat(0)) == 1 {
-				weiBigInt := gweiTowei(gwei)
+				weiBigInt := weiConverter.GweiTowei(gwei)
 				fmt.Printf("wei: \t%s\n", weiBigInt.String())
-				fmt.Printf("ether:\t%s\n", weiToEther(weiBigInt).Text('f', -1))
+				fmt.Printf("ether:\t%s\n", weiConverter.WeiToEther(weiBigInt).Text('f', -1))
 			}
 			if ether.Cmp(big.NewFloat(0)) == 1 {
-				weiBigInt := etherToWei(ether)
+				weiBigInt := weiConverter.EtherToWei(ether)
 				fmt.Printf("wei:\t%s\n", weiBigInt.String())
-				fmt.Printf("gwei:\t%s\n", weiToGwei(weiBigInt).Text('f', -1))
+				fmt.Printf("gwei:\t%s\n", weiConverter.WeiToGwei(weiBigInt).Text('f', -1))
 			}
 			return
 		}
@@ -87,22 +86,22 @@ to quickly create a Cobra application.`,
 			// Only update the other field if it's this field that has the focus
 			if weiInput.HasFocus() {
 				wei, _ := (new(big.Int)).SetString(weiString, 10)
-				eth := weiToEther(wei)
+				eth := weiConverter.WeiToEther(wei)
 				// Update ether field
 				etherInput.SetText(eth.Text('f', -1))
 				// Update gwei field
-				gweiInput.SetText(weiToGwei(wei).Text('f', -1))
+				gweiInput.SetText(weiConverter.WeiToGwei(wei).Text('f', -1))
 			}
 		})
 
 		gweiInput.SetChangedFunc(func(gweiString string) {
 			// Only update the other field if it's this field that has the focus
 			if gweiInput.HasFocus() {
-				gwei, _ := ParseBigFloat(gweiString)
-				wei := gweiTowei(gwei)
+				gwei, _ := weiConverter.ParseBigFloat(gweiString)
+				wei := weiConverter.GweiTowei(gwei)
 				// Update wei field
 				weiInput.SetText(wei.String())
-				eth := weiToEther(wei)
+				eth := weiConverter.WeiToEther(wei)
 				// Update ether field
 				etherInput.SetText(eth.Text('f', -1))
 			}
@@ -111,12 +110,12 @@ to quickly create a Cobra application.`,
 		etherInput.SetChangedFunc(func(etherString string) {
 			// Only update the other field if it's this field that has the focus
 			if etherInput.HasFocus() {
-				ether, _ := ParseBigFloat(etherString)
-				wei := etherToWei(ether)
+				ether, _ := weiConverter.ParseBigFloat(etherString)
+				wei := weiConverter.EtherToWei(ether)
 				// Update wei field
 				weiInput.SetText(wei.String())
 				// Update gwei field
-				gweiInput.SetText(weiToGwei(wei).Text('f', -1))
+				gweiInput.SetText(weiConverter.WeiToGwei(wei).Text('f', -1))
 			}
 		})
 		form := tview.NewForm().AddFormItem(weiInput).AddFormItem(gweiInput).AddFormItem(etherInput).
@@ -152,44 +151,4 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// weiConverterCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-func weiToEther(wei *big.Int) *big.Float {
-	return new(big.Float).Quo(new(big.Float).SetInt(wei), big.NewFloat(params.Ether))
-}
-
-func weiToGwei(wei *big.Int) *big.Float {
-	//return new(big.Int).Div(wei, big.NewInt(params.GWei))
-	return new(big.Float).Quo(new(big.Float).SetInt(wei), big.NewFloat(params.GWei))
-	//return wei
-}
-
-func gweiTowei(gwei *big.Float) *big.Int {
-	//return new(big.Int).Mul(gwei, big.NewInt(params.GWei))
-	truncInt, _ := gwei.Int(nil)
-	truncInt = new(big.Int).Mul(truncInt, big.NewInt(params.GWei))
-	fracStr := strings.Split(fmt.Sprintf("%.18f", gwei), ".")[1]
-	fracStr += strings.Repeat("0", 18-len(fracStr))
-	fracInt, _ := new(big.Int).SetString(fracStr, 10)
-	wei := new(big.Int).Add(truncInt, fracInt)
-	return wei
-}
-
-func etherToWei(eth *big.Float) *big.Int {
-	truncInt, _ := eth.Int(nil)
-	truncInt = new(big.Int).Mul(truncInt, big.NewInt(params.Ether))
-	fracStr := strings.Split(fmt.Sprintf("%.18f", eth), ".")[1]
-	fracStr += strings.Repeat("0", 18-len(fracStr))
-	fracInt, _ := new(big.Int).SetString(fracStr, 10)
-	wei := new(big.Int).Add(truncInt, fracInt)
-	return wei
-}
-
-// ParseBigFloat parse string value to big.Float
-func ParseBigFloat(value string) (*big.Float, error) {
-	f := new(big.Float)
-	f.SetPrec(236) //  IEEE 754 octuple-precision binary floating-point format: binary256
-	f.SetMode(big.ToNearestEven)
-	_, err := fmt.Sscan(value, f)
-	return f, err
 }
