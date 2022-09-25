@@ -16,25 +16,11 @@ limitations under the License.
 package utilscmd
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
-	"net/http"
-	"strings"
-
-	"github.com/nodauf/web3Toolbox/embeddedFiles"
+	"github.com/nodauf/web3Toolbox/utilsCmd/reverseSelector"
 	"github.com/spf13/cobra"
+	"log"
 )
-
-type signature struct {
-	ID            int    `json:"id"`
-	TextSignature string `json:"text_signature"`
-	HexSignature  string `json:"hex_signature"`
-}
-
-type response4Bytes struct {
-	Results []signature `json:"results"`
-}
 
 var online bool
 
@@ -45,48 +31,24 @@ var reverseSelectorCmd = &cobra.Command{
 	Long:  `The online flag will use less memory`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if !online {
-			var allSignatures []signature
-			err := json.Unmarshal(embeddedFiles.Get4bytesSignatures(), &allSignatures)
-			if err != nil {
-				log.Fatalf("Fail to unmarshal: %s", err.Error())
-				return
-			}
-			// Create index for signatures to avoid complexity O(n²) -> O(2n)
-			var indexSignatures = make(map[string][]string, len(allSignatures))
-			for _, signature := range allSignatures {
-				indexSignatures[signature.HexSignature] = append(indexSignatures[signature.HexSignature], signature.TextSignature)
 
-			}
 			for _, arg := range args {
-				if textSignature, ok := indexSignatures[arg]; ok {
-					fmt.Printf("%s: %s\n", arg, strings.Join(textSignature, "\n"+arg+": "))
-					// We continue, one selector can match multiple signatures
-					//break
+				signatures, err := reverseSelector.ReverseSelectorFile(arg)
+				if err != nil {
+					log.Fatal(err)
+				}
+				for _, signature := range signatures {
+					fmt.Printf("%s: %s\n", arg, signature)
 				}
 			}
 		} else {
 			for _, arg := range args {
-				var baseURL = "https://www.4byte.directory/api/v1/signatures/?hex_signature=%s"
-				url := fmt.Sprintf(baseURL, arg)
-				resp, err := http.Get(url)
+				signatures, err := reverseSelector.ReverseSelectorOnline(arg)
 				if err != nil {
-					fmt.Printf("Fail to get page at %s: %s\n", url, err.Error())
-					continue
+					log.Fatal(err)
 				}
-				if resp.StatusCode != 200 {
-					resp.Body.Close()
-					fmt.Printf("Fail to get page at %s status code %d:\n", url, resp.StatusCode)
-					continue
-				}
-				var resp4Bytes response4Bytes
-				err = json.NewDecoder(resp.Body).Decode(&resp4Bytes)
-				resp.Body.Close()
-				if err != nil {
-					fmt.Printf("Fail to decode response at %s: %s\n", url, err.Error())
-					continue
-				}
-				for _, signature := range resp4Bytes.Results {
-					fmt.Printf("%s: %s\n", arg, signature.TextSignature)
+				for _, signature := range signatures {
+					fmt.Printf("%s: %s\n", arg, signature)
 				}
 			}
 		}

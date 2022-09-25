@@ -13,26 +13,26 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
-type signature struct {
-	ID            int    `json:"id"`
-	TextSignature string `json:"text_signature"`
-	HexSignature  string `json:"hex_signature"`
+type event struct {
+	ID        int    `json:"id"`
+	Textevent string `json:"text_signature"`
+	Hexevent  string `json:"hex_signature"`
 }
 
 type response4Bytes struct {
-	Results []signature `json:"results"`
+	Results []event `json:"results"`
 }
 
 func main() {
 	var thread, pageMax int
 	flag.IntVar(&thread, "thread", 10, "Number of threads")
-	flag.IntVar(&pageMax, "pageMax", 8095, "The last page to retrieve")
+	flag.IntVar(&pageMax, "pageMax", 1454, "The last page to retrieve")
 	flag.Parse()
 
 	var bar = progressbar.Default(int64(pageMax))
-	var allSignatures []signature
+	var allEvents []event
 	pages := make(chan int)
-	results := make(chan []signature)
+	results := make(chan []event)
 	var mux sync.Mutex
 	var wg sync.WaitGroup
 	// start workers pool with  threads
@@ -44,7 +44,7 @@ func main() {
 
 			result := <-results
 			mux.Lock()
-			allSignatures = append(allSignatures, result...)
+			allEvents = append(allEvents, result...)
 			mux.Unlock()
 		}()
 
@@ -70,19 +70,19 @@ pageChecker:
 	close(pages)
 	wg.Wait()
 
-	signatureJSON, _ := json.MarshalIndent(allSignatures, "", "  ")
-	err := ioutil.WriteFile("4bytesSignatures.json", signatureJSON, 0644)
+	eventJSON, _ := json.MarshalIndent(allEvents, "", "  ")
+	err := ioutil.WriteFile("4bytesEvents.json", eventJSON, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 }
 
-func download4BytesPage(pages chan int, results chan<- []signature, bar *progressbar.ProgressBar) {
-	var baseURL = "https://www.4byte.directory/api/v1/signatures/?page=%d"
+func download4BytesPage(pages chan int, results chan<- []event, bar *progressbar.ProgressBar) {
+	var baseURL = "https://www.4byte.directory/api/v1/event-signatures/?page=%d"
 
-	var allSignatures []signature
-	defer func() { results <- allSignatures }()
+	var allEvents []event
+	defer func() { results <- allEvents }()
 	var resp4Bytes response4Bytes
 	for page := range pages {
 
@@ -121,9 +121,9 @@ func download4BytesPage(pages chan int, results chan<- []signature, bar *progres
 		if len(resp4Bytes.Results) == 0 {
 			fmt.Println("Reach the end")
 		}
-		allSignatures = append(allSignatures, resp4Bytes.Results...)
+		allEvents = append(allEvents, resp4Bytes.Results...)
 		bar.Add(1)
-		//allSignatures = append(allSignatures, resp4Bytes.Results...)
+		//allevents = append(allevents, resp4Bytes.Results...)
 		//result <- resp4Bytes
 
 	}

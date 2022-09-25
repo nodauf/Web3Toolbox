@@ -1,4 +1,4 @@
-package reverseSelector
+package reverseEvent
 
 type signature struct {
 	ID            int    `json:"id"`

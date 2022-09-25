@@ -6,15 +6,17 @@ require (
 	github.com/ethereum/go-ethereum v1.10.18
 	github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/nodauf/solc-go v0.0.0-20220612200718-cbd2e5d14891
+	github.com/nodauf/solc-go v0.0.0-20220612205518-d8a86ada7fa9
 	github.com/rivo/tview v0.0.0-20220307222120-9994674d60a8
 	github.com/schollz/progressbar/v3 v3.8.6
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/viper v1.12.0
+	github.com/umbracle/solidity-parser-go v0.0.0-20220312135225-896e758144e8
 )
 
 require (
 	github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 // indirect
+	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20211204205839-489de649cafb // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
 	github.com/deckarep/golang-set v1.8.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1 // indirect
@@ -37,6 +39,7 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rjeczalik/notify v0.9.1 // indirect
 	github.com/shirou/gopsutil v3.21.4-0.20210419000835-c7a38de76ee5+incompatible // indirect
+	github.com/smacker/go-tree-sitter v0.0.0-20211116060328-db7fde9b5e82 // indirect
 	github.com/spf13/afero v1.8.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect

@@ -83,7 +83,6 @@ func InterfaceFromAST(ast solc.ASTsolc) string {
 		if node.NodeType == "ContractDefinition" {
 			interfaceString += fmt.Sprintf("interface %s {\n", node.Name)
 			for j, contractNode := range node.Nodes {
-
 				// Variables
 				if contractNode.NodeType == "VariableDeclaration" && contractNode.Name != "" {
 					var returnType string

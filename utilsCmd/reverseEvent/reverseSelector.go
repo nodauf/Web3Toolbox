@@ -1,4 +1,4 @@
-package reverseSelector
+package reverseEvent
 
 import (
 	"encoding/json"
@@ -7,9 +7,9 @@ import (
 	"net/http"
 )
 
-func ReverseSelectorOnline(selector string) ([]string, error) {
-	var baseURL = "https://www.4byte.directory/api/v1/signatures/?hex_signature=%s"
-	url := fmt.Sprintf(baseURL, selector)
+func ReverseEventOnline(Event string) ([]string, error) {
+	var baseURL = "https://www.4byte.directory/api/v1/event-signatures/?hex_signature=%s"
+	url := fmt.Sprintf(baseURL, Event)
 	resp, err := http.Get(url)
 	if err != nil {
 		//fmt.Printf("Fail to get page at %s: %s\n", url, err.Error())
@@ -29,7 +29,7 @@ func ReverseSelectorOnline(selector string) ([]string, error) {
 	}
 	var allSignatures []string
 	for _, signature := range resp4Bytes.Results {
-		//fmt.Printf("%s: %s\n", selector, signature.TextSignature)
+		//fmt.Printf("%s: %s\n", Event, signature.TextSignature)
 		allSignatures = append(allSignatures, signature.TextSignature)
 	}
 	return allSignatures, nil
@@ -37,9 +37,9 @@ func ReverseSelectorOnline(selector string) ([]string, error) {
 
 var indexSignatures = map[string][]string{}
 
-func loadFileSignatures() error {
+func loadFileEvents() error {
 	var allSignatures []signature
-	err := json.Unmarshal(embeddedFiles.Get4bytesSignatures(), &allSignatures)
+	err := json.Unmarshal(embeddedFiles.Get4bytesEvents(), &allSignatures)
 	if err != nil {
 		//log.Fatalf("Fail to unmarshal: %s", err.Error())
 		return fmt.Errorf("Fail to unmarshal: %s", err.Error())
@@ -52,18 +52,18 @@ func loadFileSignatures() error {
 	return nil
 }
 
-func ReverseSelectorFile(selector string) ([]string, error) {
+func ReverseEventFile(Event string) ([]string, error) {
 	if len(indexSignatures) == 0 {
-		err := loadFileSignatures()
+		err := loadFileEvents()
 		if err != nil {
 			return nil, err
 		}
 	}
 	var signatures []string
-	if textSignature, ok := indexSignatures[selector]; ok {
+	if textSignature, ok := indexSignatures[Event]; ok {
 		signatures = textSignature
 		//fmt.Printf("%s: %s\n", arg, strings.Join(textSignature, "\n"+selec+": "))
-		// We continue, one selector can match multiple signatures
+		// We continue, one Event can match multiple signatures
 		//break
 	}
 	return signatures, nil

@@ -72,6 +72,9 @@ var storageChangedCmd = &cobra.Command{
 				}
 			}
 		}
+		if len(initialStorage) == 0 {
+			fmt.Println("No storage changes")
+		}
 		for key, value := range initialStorage {
 			if value != finalStorage[key] {
 				fmt.Println("----------------------------------------------------")
